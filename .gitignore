@@ -205,3 +205,28 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Experiment outputs
+outputs/
+logs/
+
+# Project assets kept out of git
+checkpoints/*
+!checkpoints/.gitkeep
+!checkpoints/*/
+checkpoints/*/*
+!checkpoints/*/.gitkeep
+checkpoints/sscd/*.pt
+
+datasets/*
+!datasets/.gitkeep
+!datasets/*/
+datasets/*/*
+!datasets/*/.gitkeep
+datasets/celeba_hq_256/*.jpg
+
+results/*
+!results/.gitkeep
+!results/*/
+results/*/*
+!results/*/.gitkeep

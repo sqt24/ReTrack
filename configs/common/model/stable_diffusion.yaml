@@ -1,0 +1,20 @@
+# @package _global_
+device: cuda
+type: sd
+
+transform:
+  _target_: torchvision.transforms.Compose
+  transforms:
+    - _target_: torchvision.transforms.Normalize
+      mean: [127.5]
+      std: [127.5]
+
+sampler:
+  _target_: retrack.samplers.SDSampler
+
+algorithm:
+  siss:
+    lambda: 0.5
+    rescale_factor: 750
+  erasediff:
+    eta: 1e-2

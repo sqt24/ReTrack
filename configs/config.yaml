@@ -1,0 +1,8 @@
+defaults:
+  - experiment: cifar10
+  - _self_
+
+mode: run
+name: null
+subname: null
+storage_root: .

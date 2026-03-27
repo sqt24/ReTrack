@@ -1,0 +1,88 @@
+# @package _global_
+defaults:
+  - /common/debug@debug: default
+  - /common/model: ddpm
+  - /common/metrics@metrics: sscd
+
+random_seeds: 0
+remove_img_names: [10000, 10001, 10002, 10003, 10004, 10005, 10006, 10007, 10008, 10009]
+
+project: cifar10_unlearning
+
+logging_dir: logs
+checkpoint_dir: ${storage_root}/checkpoints/cifar10/pretrained/ddpm_ema_cifar10_32
+data_dir: ${storage_root}/datasets/cifar10
+artifacts:
+  model_root: ${storage_root}/checkpoints/cifar10/unlearn
+  results_root: ${storage_root}/results/cifar10
+
+algorithm:
+  retrack:
+    K: 10
+    lambda: 0.02
+  siss:
+    rescale_factor: 5
+
+train:
+  batch_size: 128
+  gradient_accumulation_steps: 1
+  steps: 60
+  lr:
+    scheduler: constant
+    warmup_steps: 0
+  dataloader_num_workers: 0
+  mixed_precision: null
+
+eval:
+  steps: 60
+  batch_size: 128
+  num_images: 10000
+  num_visualize: 100
+  num_inference_steps: 1000
+  save_images: false
+
+model:
+  _target_: diffusers.UNet2DModel.from_pretrained
+  pretrained_model_name_or_path: ${checkpoint_dir}
+  subfolder: unet
+
+scheduler:
+  _target_: diffusers.DDPMScheduler.from_pretrained
+  pretrained_model_name_or_path: ${checkpoint_dir}
+  subfolder: scheduler
+
+optimizer:
+  _target_: torch.optim.AdamW
+  lr: 2e-5
+  betas: [0.95, 0.999]
+  weight_decay: 1e-6
+  eps: 1e-8
+
+evaluator:
+  _target_: retrack.evaluators.Cifar10Evaluator
+
+dataset:
+  class: retrack.datasets.Cifar10Dataset
+  all:
+    _target_: ${dataset.class}
+    data_dir: ${data_dir}
+    filter: all
+  remain:
+    _target_: ${dataset.class}
+    data_dir: ${data_dir}
+    filter: remain
+  deletion:
+    _target_: ${dataset.class}
+    data_dir: ${data_dir}
+    filter: deletion
+  knn:
+    _target_: ${dataset.class}
+    data_dir: ${data_dir}
+    filter: knn
+    K: ${algorithm.retrack.K}
+
+metrics:
+  fid:
+    batch_size: 256
+  inception_score:
+    batch_size: 256

@@ -1,0 +1,20 @@
+# @package _global_
+device: cuda
+type: ddpm
+
+transform:
+  _target_: torchvision.transforms.Compose
+  transforms:
+    - _target_: torchvision.transforms.ToTensor
+    - _target_: torchvision.transforms.Normalize
+      mean: [0.5]
+      std: [0.5]
+
+sampler:
+  _target_: retrack.samplers.DDPMSampler
+
+algorithm:
+  siss:
+    lambda: 0.5
+  erasediff:
+    eta: 1e-3

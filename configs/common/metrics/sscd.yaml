@@ -1,0 +1,12 @@
+sscd:
+  denoising_injection_timestep: 250
+  model_path: ${storage_root}/checkpoints/sscd/sscd_disc_mixup.torchscript.pt
+  transform:
+    _target_: torchvision.transforms.Compose
+    transforms:
+      - _target_: torchvision.transforms.Resize
+        size: 288
+      - _target_: torchvision.transforms.ToTensor
+      - _target_: torchvision.transforms.Normalize
+        mean: [0.485, 0.456, 0.406]
+        std: [0.229, 0.224, 0.225]

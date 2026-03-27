@@ -1,0 +1,94 @@
+# @package _global_
+defaults:
+  - /common/debug@debug: default
+  - /common/model: ddpm
+  - /common/metrics@metrics: sscd
+
+random_seeds: 0
+remove_img_names:
+  - 10001.jpg
+  - 10002.jpg
+  - 10003.jpg
+  - 10004.jpg
+  - 10005.jpg
+  - 10006.jpg
+  - 10007.jpg
+  - 10008.jpg
+  - 10009.jpg
+  - 10010.jpg
+
+project: celeba_hq_unlearning
+
+logging_dir: logs
+checkpoint_dir: ${storage_root}/checkpoints/celeba_hq/pretrained/ddpm_ema_celebahq_256
+data_dir: ${storage_root}/datasets/celeba_hq_256
+artifacts:
+  model_root: ${storage_root}/checkpoints/celeba_hq/unlearn
+  results_root: ${storage_root}/results/celeba_hq
+
+algorithm:
+  retrack:
+    K: 10
+    lambda: 0.005
+  siss:
+    rescale_factor: 500
+
+train:
+  batch_size: 4
+  gradient_accumulation_steps: 16
+  steps: 40
+  lr:
+    scheduler: constant
+    warmup_steps: 0
+  dataloader_num_workers: 0
+  mixed_precision: null
+
+eval:
+  steps: 40
+  batch_size: 32
+  num_images: 10000
+  num_visualize: 25
+  num_inference_steps: 50
+  save_images: false
+
+model:
+  _target_: diffusers.UNet2DModel.from_pretrained
+  pretrained_model_name_or_path: ${checkpoint_dir}
+
+scheduler:
+  _target_: diffusers.DDPMScheduler.from_pretrained
+  pretrained_model_name_or_path: ${checkpoint_dir}
+
+optimizer:
+  _target_: torch.optim.AdamW
+  lr: 5e-6
+  betas: [0.95, 0.999]
+  weight_decay: 1e-6
+  eps: 1e-8
+
+evaluator:
+  _target_: retrack.evaluators.CelebAHQEvaluator
+
+dataset:
+  class: retrack.datasets.CelebAHQDataset
+  all:
+    _target_: ${dataset.class}
+    data_dir: ${data_dir}
+    filter: all
+  remain:
+    _target_: ${dataset.class}
+    data_dir: ${data_dir}
+    filter: remain
+  deletion:
+    _target_: ${dataset.class}
+    data_dir: ${data_dir}
+    filter: deletion
+  knn:
+    _target_: ${dataset.class}
+    data_dir: ${data_dir}
+    filter: knn
+    K: ${algorithm.retrack.K}
+
+metrics:
+  fid:
+    batch_size: 256

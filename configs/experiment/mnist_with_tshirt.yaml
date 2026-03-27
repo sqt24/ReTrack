@@ -1,0 +1,93 @@
+# @package _global_
+defaults:
+  - /common/debug@debug: default
+  - /common/model: ddpm
+
+random_seeds: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+remove_img_names: tshirt
+
+project: mnist_with_tshirt_unlearning
+
+logging_dir: logs
+checkpoint_dir: ${storage_root}/checkpoints/mnist_with_tshirt/pretrained/checkpoint-117500
+data_dir: ${storage_root}/datasets/mnist_with_tshirt
+artifacts:
+  model_root: ${storage_root}/checkpoints/mnist_with_tshirt/unlearn
+  results_root: ${storage_root}/results/mnist_with_tshirt
+
+algorithm:
+  retrack:
+    K: 10
+    lambda: 0.005
+  siss:
+    rescale_factor: 5
+
+train:
+  batch_size: 128
+  gradient_accumulation_steps: 1
+  steps: 50
+  lr:
+    scheduler: constant
+    warmup_steps: 0
+  dataloader_num_workers: 0
+  mixed_precision: null
+
+eval:
+  steps: 50
+  batch_size: 128
+  num_images: 50000
+  num_visualize: 400
+  num_inference_steps: 50
+  save_images: false
+
+model:
+  _target_: diffusers.UNet2DModel.from_pretrained
+  pretrained_model_name_or_path: ${checkpoint_dir}
+  subfolder: unet_ema
+
+scheduler:
+  _target_: diffusers.DDPMScheduler
+  num_train_timesteps: 1000
+  beta_schedule: linear
+  beta_start: 0.0001
+  beta_end: 0.02
+
+optimizer:
+  _target_: torch.optim.AdamW
+  lr: 5e-5
+  betas: [0.95, 0.999]
+  weight_decay: 1e-6
+  eps: 1e-8
+
+evaluator:
+  _target_: retrack.evaluators.MnistWithTshirtEvaluator
+
+dataset:
+  class: retrack.datasets.MnistWithTshirtDataset
+  remain:
+    _target_: ${dataset.class}
+    data_dir: ${data_dir}
+    filter: remain
+  deletion:
+    _target_: ${dataset.class}
+    data_dir: ${data_dir}
+    filter: deletion
+  knn:
+    _target_: ${dataset.class}
+    data_dir: ${data_dir}
+    filter: knn
+    K: ${algorithm.retrack.K}
+
+metrics:
+  frequency:
+    tshirt_path: ${data_dir}/tshirt.png
+    threshold: 10
+  fid:
+    batch_size: 256
+  inception_score:
+    classifier:
+      _target_: checkpoints.mnist_with_tshirt.classifier.mnist_resnet.resnet18
+      num_classes: 10
+      grayscale: true
+    classifier_ckpt: ${storage_root}/checkpoints/mnist_with_tshirt/classifier/mnist.pt
+    batch_size: 256
