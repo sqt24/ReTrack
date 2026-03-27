@@ -3,8 +3,6 @@ set -euo pipefail
 
 if [[ -n "${STORAGE_ROOT:-}" ]]; then
   ROOT="$STORAGE_ROOT"
-elif [[ -n "${NAS:-}" ]]; then
-  ROOT="$NAS/retrack"
 else
   ROOT="."
 fi

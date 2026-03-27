@@ -39,12 +39,14 @@ mkdir -p datasets/cifar10
 hf download uoft-cs/cifar10 --repo-type=dataset --local-dir datasets/cifar10
 mv datasets/cifar10/plain_text/train-00000-of-00001.parquet datasets/cifar10/train-00000-of-00001.parquet
 rm -r datasets/cifar10/plain_text
+rm datasets/cifar10/README.md
 
 # mnist_with_tshirt
 mkdir -p datasets/mnist_with_tshirt
 hf download claserken/mnist-with-tshirt --repo-type=dataset --local-dir datasets/mnist_with_tshirt
 mv datasets/mnist_with_tshirt/data/train-00000-of-00001.parquet datasets/mnist_with_tshirt/train-00000-of-00001.parquet
 rm -r datasets/mnist_with_tshirt/data
+rm datasets/mnist_with_tshirt/README.md
 
 # celeba_hq, stable diffusion and t-shirt
 mkdir -p datasets/celeba_hq_256

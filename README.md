@@ -22,7 +22,7 @@ conda activate retrack
 
 ```bash
 bash download.sh
-bash scripts/check_assets.sh
+bash scripts/check_assets.sh # Integrity Verification
 ```
 
 ## Running Experiments

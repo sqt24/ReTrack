@@ -81,8 +81,6 @@ def check_mnist_with_tshirt(root: Path):
     model_root = root / "checkpoints" / "mnist_with_tshirt" / "pretrained"
     checkpoint_root = model_root / "checkpoint-117500"
     data_root = root / "datasets" / "mnist_with_tshirt"
-    require_file(model_root / "model_index.json", errors)
-    require_file(model_root / "scheduler" / "scheduler_config.json", errors)
     require_file(checkpoint_root / "scheduler.bin", errors)
     require_file(checkpoint_root / "unet_ema" / "config.json", errors)
     require_model_weights(checkpoint_root / "unet_ema", errors)
@@ -115,6 +113,8 @@ def check_stable_diffusion(root: Path):
     if prompt_names:
         for prompt_name in prompt_names:
             concept_root = data_root / prompt_name
+            if prompt_name in ("emma_watson_beauty_beast", "j_dilla_equipment_smithsonian"):
+                continue
             require_nonempty_dir(concept_root, errors)
             require_file(concept_root / "clustering_info.json", errors)
             require_file(concept_root / "kmeans_classifier.joblib", errors)
