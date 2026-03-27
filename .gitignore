@@ -216,6 +216,9 @@ checkpoints/*
 !checkpoints/*/
 checkpoints/*/*
 !checkpoints/*/.gitkeep
+!checkpoints/mnist_with_tshirt/classifier/
+checkpoints/mnist_with_tshirt/classifier/*
+!checkpoints/mnist_with_tshirt/classifier/mnist_resnet.py
 checkpoints/sscd/*.pt
 
 datasets/*
