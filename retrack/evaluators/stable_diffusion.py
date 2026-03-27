@@ -91,7 +91,7 @@ class SDEvaluator(Evaluator):
             for image in self.images[image_index]
         ]
         embeddings = self.sscd_model(torch.cat([self.sscd_img, *images], dim=0))
-        scores = torch.nn.functional.cosine_similarity(embeddings[0], embeddings[1:], dim=1).cpu().numpy()
+        scores = torch.nn.functional.cosine_similarity(embeddings[0], embeddings[1:], dim=1).detach().cpu().numpy()
         return np.mean(scores).item()
 
     @Evaluator.metric
